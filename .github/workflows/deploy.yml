@@ -9,12 +9,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
       - name: Meta
         id: meta
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@v4
         with:
           images: containers.chewed-k8s.net/1tn-pw/short-service
           tags: |
@@ -23,26 +23,26 @@ jobs:
             type=sha
       - name: QEMU
         id: qemu
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
       - name: Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
       - name: Login Github
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: containers.chewed-k8s.net
           username: robot$1tn-pw+github
           password: ${{ secrets.CONTAINERS_KEY }}
       - name: Build and Push
         id: docker_build
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: .
           platforms: linux/amd64,linux/arm64
@@ -52,7 +52,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           push: true
           build-args: |
-            SERVICE_NAME=queue-manager-service
+            SERVICE_NAME=short-service
             VERSION=${{ github.ref_name }}
             BUILD=${{ github.sha }}
 #  deploy:
