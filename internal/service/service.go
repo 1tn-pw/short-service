@@ -26,9 +26,8 @@ func (s *Service) Start() error {
 }
 
 func startHTTP(cfg ConfigBuilder.Config, errChan chan error) {
-	logs.Local().Infof("Starting HTTP on %s", cfg.Local.HTTPPort)
+	logs.Local().Infof("Starting HTTP on %d", cfg.Local.HTTPPort)
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/health", healthcheck.HTTP)
-	errChan <- http.ListenAndServe(fmt.Sprint("%d", cfg.Local.HTTPPort), mux)
+	http.HandleFunc("/health", healthcheck.HTTP)
+	errChan <- http.ListenAndServe(fmt.Sprintf(":%d", cfg.Local.HTTPPort), nil)
 }
