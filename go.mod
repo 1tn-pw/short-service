@@ -12,7 +12,9 @@ require (
 	github.com/cenkalti/backoff/v3 v3.2.2 // indirect
 	github.com/go-jose/go-jose/v3 v3.0.1 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
+	github.com/go-ping/ping v1.1.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
@@ -23,6 +25,7 @@ require (
 	github.com/hashicorp/go-sockaddr v1.0.6 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/vault/api v1.11.0 // indirect
+	github.com/keloran/go-healthcheck v1.2.1 // indirect
 	github.com/keloran/vault-helper v0.8.2 // indirect
 	github.com/klauspost/compress v1.17.6 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
@@ -37,6 +40,7 @@ require (
 	golang.org/x/crypto v0.19.0 // indirect
 	golang.org/x/net v0.21.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
+	golang.org/x/sys v0.17.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 )

@@ -47,7 +47,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: short-service-secrets
-                  key: mongo-queue-collection
+                  key: mongo-shorts-collection
             - name: MONGO_DB
               valueFrom:
                 secretKeyRef:
