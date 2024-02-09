@@ -3,8 +3,9 @@ module github.com/1tn-pw/short-service
 go 1.21
 
 require (
-	github.com/bugfixes/go-bugfixes v0.9.8
+	github.com/bugfixes/go-bugfixes v0.10.0
 	github.com/keloran/go-config v0.4.2
+	github.com/keloran/go-healthcheck v1.2.1
 )
 
 require (
@@ -25,7 +26,6 @@ require (
 	github.com/hashicorp/go-sockaddr v1.0.6 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/vault/api v1.11.0 // indirect
-	github.com/keloran/go-healthcheck v1.2.1 // indirect
 	github.com/keloran/vault-helper v0.8.2 // indirect
 	github.com/klauspost/compress v1.17.6 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
