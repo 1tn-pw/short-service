@@ -13,13 +13,40 @@ type Server struct {
 }
 
 func (s *Server) CreateURL(ctx context.Context, in *pb.CreateURLRequest) (*pb.CreateURLResponse, error) {
+	if in.GetUrl() == "" {
+		return &pb.CreateURLResponse{
+			Error: utils.StringPointer("url is required"),
+		}, nil
+	}
+
+	resp, err := NewShort(ctx, s.Config).CreateURL(in.Url)
+	if err != nil {
+		return &pb.CreateURLResponse{
+			Error: utils.StringPointer(err.Error()),
+		}, nil
+	}
+
 	return &pb.CreateURLResponse{
-		Error: utils.StringPointer("not implemented"),
+		ShortUrl: resp,
+		Url:      in.GetUrl(),
 	}, nil
 }
 
 func (s *Server) GetURL(ctx context.Context, in *pb.GetURLRequest) (*pb.GetURLResponse, error) {
+	if in.GetShortUrl() == "" {
+		return &pb.GetURLResponse{
+			Error: utils.StringPointer("short url is required"),
+		}, nil
+	}
+
+	resp, err := NewShort(ctx, s.Config).GetURL(in.ShortUrl)
+	if err != nil {
+		return &pb.GetURLResponse{
+			Error: utils.StringPointer(err.Error()),
+		}, nil
+	}
+
 	return &pb.GetURLResponse{
-		Error: utils.StringPointer("not implemented"),
+		Url: resp,
 	}, nil
 }
