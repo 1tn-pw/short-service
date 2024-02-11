@@ -3,12 +3,14 @@ module github.com/1tn-pw/short-service
 go 1.22
 
 require (
+	github.com/1tn-pw/protobufs v0.1.0
 	github.com/bugfixes/go-bugfixes v0.10.0
 	github.com/keloran/go-config v0.4.2
+	github.com/keloran/go-healthcheck v1.2.1
+	google.golang.org/grpc v1.61.0
 )
 
 require (
-	github.com/1tn-pw/protobufs v0.1.0 // indirect
 	github.com/caarlos0/env/v8 v8.0.0 // indirect
 	github.com/cenkalti/backoff/v3 v3.2.2 // indirect
 	github.com/go-jose/go-jose/v3 v3.0.1 // indirect
@@ -27,7 +29,6 @@ require (
 	github.com/hashicorp/go-sockaddr v1.0.6 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/vault/api v1.11.0 // indirect
-	github.com/keloran/go-healthcheck v1.2.1 // indirect
 	github.com/keloran/vault-helper v0.8.2 // indirect
 	github.com/klauspost/compress v1.17.6 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
@@ -46,6 +47,5 @@ require (
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231106174013-bbf56f31fb17 // indirect
-	google.golang.org/grpc v1.61.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 )
