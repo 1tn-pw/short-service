@@ -1,5 +1,5 @@
 # Build
-FROM containers.chewed-k8s.net/library/docker_hub_cache/golang:alpine3.18 AS builder
+FROM containers.chewed-k8s.net/docker_hub_cache/library/golang:alpine3.18 AS builder
 
 RUN mkdir -p /home/builder
 WORKDIR /home/builder
@@ -20,7 +20,7 @@ RUN go build -ldflags "-w -s -X main.BuildVersion=${VERSION} -X main.BuildHash=$
 RUN cp ./bin/${SERVICE_NAME} /
 
 # Runner
-FROM containers.chewed-k8s.net/library/docker_hub_cache/alpine:3.19 AS Runner
+FROM containers.chewed-k8s.net/docker_hub_cache/library/alpine:3.19 AS Runner
 ARG SERVICE_NAME
 
 RUN apk update
