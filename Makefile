@@ -28,7 +28,7 @@ build-images: ## Build the images
 .PHONY: publish-images
 publish-images:
 	nerdctl push containers.chewed-k8s.net/${NAMESPACE}/${SERVICE_NAME}:${GIT_COMMIT} --all-platforms
-	nerdctl push containers.chewed-k8s.net${NAMESPACE}/${SERVICE_NAME}:latest --all-platforms
+	nerdctl push containers.chewed-k8s.net/${NAMESPACE}/${SERVICE_NAME}:latest --all-platforms
 
 .PHONY: build
 build: build-images
