@@ -43,7 +43,7 @@ spec:
                 secretKeyRef:
                   name: short-service-secrets
                   key: vault-token
-            - name: MONGO_COLLECTION_QUEUES
+            - name: MONGO_COLLECTION_SHORT
               valueFrom:
                 secretKeyRef:
                   name: short-service-secrets
