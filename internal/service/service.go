@@ -2,6 +2,9 @@ package service
 
 import (
 	"fmt"
+	"net"
+	"net/http"
+
 	pb "github.com/1tn-pw/protobufs/generated/short_service/v1"
 	"github.com/1tn-pw/short-service/internal/short"
 	"github.com/bugfixes/go-bugfixes/logs"
@@ -9,8 +12,6 @@ import (
 	"github.com/keloran/go-healthcheck"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"net"
-	"net/http"
 )
 
 type Service struct {
