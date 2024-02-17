@@ -84,7 +84,7 @@ func (s *Short) alreadyExists(long string) (string, error) {
 	doc := &ShortDoc{}
 	res, err := m.FindOne(s.CTX, &bson.M{"long_url": long})
 	if err != nil {
-		if err.Error() == "mongo: no documents in result" {
+		if err.Error() == "FindOne: mongo: no documents in result" {
 			return "", nil
 		} else {
 			return "", logs.Errorf("alreadyExists: %v", err)
