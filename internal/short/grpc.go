@@ -2,7 +2,6 @@ package short
 
 import (
 	"context"
-
 	pb "github.com/1tn-pw/protobufs/generated/short_service/v1"
 	"github.com/bugfixes/go-bugfixes/utils"
 	ConfigBuilder "github.com/keloran/go-config"
@@ -48,6 +47,9 @@ func (s *Server) GetURL(ctx context.Context, in *pb.GetURLRequest) (*pb.GetURLRe
 	}
 
 	return &pb.GetURLResponse{
-		Url: resp,
+		Url:         resp.LongURL,
+		Title:       resp.Title,
+		Favicon:     resp.Favicon,
+		Description: resp.Description,
 	}, nil
 }

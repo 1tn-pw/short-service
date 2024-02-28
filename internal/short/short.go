@@ -2,7 +2,10 @@ package short
 
 import (
 	"context"
+	mungo "github.com/keloran/go-config/mongo"
+	"golang.org/x/net/html"
 	"math/rand"
+	"net/http"
 	"time"
 
 	"github.com/bugfixes/go-bugfixes/logs"
@@ -10,10 +13,13 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type ShortDoc struct {
-	LongURL    string    `bson:"long_url" json:"long_url"`
-	ShortURL   string    `bson:"short_url" json:"short_url"`
-	InsertDate time.Time `bson:"insert_date" json:"insert_date"`
+type DocShort struct {
+	LongURL     string    `bson:"long_url" json:"long_url"`
+	ShortURL    string    `bson:"short_url" json:"short_url"`
+	InsertDate  time.Time `bson:"insert_date" json:"insert_date"`
+	Title       string    `bson:"title" json:"title"`
+	Favicon     string    `bson:"favicon" json:"favicon"`
+	Description string    `bson:"description" json:"description"`
 }
 
 type Short struct {
@@ -22,27 +28,37 @@ type Short struct {
 
 	Config ConfigBuilder.Config
 	CTX    context.Context
+
+	mungo.RealMongoOperations
 }
 
 func NewShort(ctx context.Context, cfg ConfigBuilder.Config) *Short {
+	m := &mungo.RealMongoOperations{}
+	if _, err := m.GetMongoClient(ctx, cfg.Mongo); err != nil {
+		_ = logs.Errorf("CreateURL getClient: %v", err)
+		return nil
+	}
+	if _, err := m.GetMongoDatabase(cfg.Mongo); err != nil {
+		_ = logs.Errorf("CreateURL getDatabase: %v", err)
+		return nil
+	}
+	if _, err := m.GetMongoCollection(cfg.Mongo, "short"); err != nil {
+		_ = logs.Errorf("CreateURL getCollection: %v", err)
+		return nil
+	}
+
 	return &Short{
-		Config: cfg,
-		CTX:    ctx,
+		Config:              cfg,
+		CTX:                 ctx,
+		RealMongoOperations: *m,
 	}
 }
 
 func (s *Short) CreateURL(long string) (string, error) {
 	short := generateShort()
 
-	m := &RealMongoOperations{
-		Database:   s.Config.Mongo.Database,
-		Collection: s.Config.Mongo.Collections["short"],
-	}
-	if err := m.GetMongoClient(s.CTX, s.Config.Mongo); err != nil {
-		return "", logs.Errorf("CreateURL: %v", err)
-	}
 	defer func() {
-		if err := m.Disconnect(s.CTX); err != nil {
+		if err := s.RealMongoOperations.Client.Disconnect(s.CTX); err != nil {
 			_ = logs.Errorf("CreateURL: %v", err)
 		}
 	}()
@@ -56,10 +72,18 @@ func (s *Short) CreateURL(long string) (string, error) {
 		return shortAlready, nil
 	}
 
-	if _, err := m.InsertOne(s.CTX, &ShortDoc{
-		LongURL:    long,
-		ShortURL:   short,
-		InsertDate: time.Now(),
+	dets, err := fetchDetails(long)
+	if err != nil {
+		return "", logs.Errorf("CreateURL: %v", err)
+	}
+
+	if _, err := s.RealMongoOperations.InsertOne(s.CTX, &DocShort{
+		LongURL:     long,
+		ShortURL:    short,
+		InsertDate:  time.Now(),
+		Title:       dets.Title,
+		Favicon:     dets.ShortURL,
+		Description: dets.Description,
 	}); err != nil {
 		return "", logs.Errorf("CreateURL: %v", err)
 	}
@@ -68,26 +92,13 @@ func (s *Short) CreateURL(long string) (string, error) {
 }
 
 func (s *Short) alreadyExists(long string) (string, error) {
-	m := &RealMongoOperations{
-		Database:   s.Config.Mongo.Database,
-		Collection: s.Config.Mongo.Collections["short"],
-	}
-	if err := m.GetMongoClient(s.CTX, s.Config.Mongo); err != nil {
-		return "", logs.Errorf("alreadyExists: %v", err)
-	}
-	defer func() {
-		if err := m.Disconnect(s.CTX); err != nil {
-			_ = logs.Errorf("alreadyExists: %v", err)
-		}
-	}()
-
-	doc := &ShortDoc{}
-	res, err := m.FindOne(s.CTX, &bson.M{"long_url": long})
-	if err != nil {
-		if err.Error() == "FindOne: mongo: no documents in result" {
+	doc := &DocShort{}
+	res := s.RealMongoOperations.FindOne(s.CTX, &bson.M{"long_url": long})
+	if res.Err() != nil {
+		if res.Err().Error() == "mongo: no documents in result" {
 			return "", nil
 		} else {
-			return "", logs.Errorf("alreadyExists: %v", err)
+			return "", logs.Errorf("alreadyExists: %v", res.Err())
 		}
 	}
 
@@ -98,31 +109,18 @@ func (s *Short) alreadyExists(long string) (string, error) {
 	return doc.ShortURL, nil
 }
 
-func (s *Short) GetURL(short string) (string, error) {
-	m := &RealMongoOperations{
-		Database:   s.Config.Mongo.Database,
-		Collection: s.Config.Mongo.Collections["short"],
-	}
-	if err := m.GetMongoClient(s.CTX, s.Config.Mongo); err != nil {
-		return "", logs.Errorf("GetURL: %v", err)
-	}
-	defer func() {
-		if err := m.Disconnect(s.CTX); err != nil {
-			_ = logs.Errorf("GetURL: %v", err)
-		}
-	}()
-
-	doc := &ShortDoc{}
-	res, err := m.FindOne(s.CTX, &bson.M{"short_url": short})
-	if err != nil {
-		return "", logs.Errorf("GetURL: %v", err)
+func (s *Short) GetURL(short string) (*DocShort, error) {
+	doc := &DocShort{}
+	res := s.RealMongoOperations.FindOne(s.CTX, &bson.M{"short_url": short})
+	if res.Err() != nil {
+		return nil, logs.Errorf("GetURL: %v", res.Err())
 	}
 
 	if err := res.Decode(doc); err != nil {
-		return "", logs.Errorf("GetURL: %v", err)
+		return nil, logs.Errorf("GetURL: %v", err)
 	}
 
-	return doc.LongURL, nil
+	return doc, nil
 }
 
 func generateShort() string {
@@ -135,4 +133,72 @@ func generateShort() string {
 		short[i] = charset[r.Intn(len(charset))]
 	}
 	return string(short)
+}
+
+func fetchDetails(url string) (*DocShort, error) {
+	res, err := http.Get(url)
+	if err != nil {
+		return nil, logs.Errorf("fetchTitle: %v", err)
+	}
+	defer func() {
+		if err := res.Body.Close(); err != nil {
+			_ = logs.Errorf("fetchTitle: %v", err)
+		}
+	}()
+	if res.StatusCode != 200 {
+		return nil, logs.Errorf("fetchTitle: %v", res.Status)
+	}
+
+	dets, err := html.Parse(res.Body)
+	if err != nil {
+		return nil, logs.Errorf("fetchTitle: %v", err)
+	}
+
+	title, favicon, description := extractDetails(dets)
+	return &DocShort{
+		Title:       title,
+		ShortURL:    favicon,
+		Description: description,
+	}, nil
+}
+
+func extractDetails(n *html.Node) (title, favicon, description string) {
+	var crawler func(*html.Node)
+	crawler = func(n *html.Node) {
+		if n.Type == html.ElementNode && n.Data == "title" && n.FirstChild != nil {
+			title = n.FirstChild.Data
+		}
+		if n.Type == html.ElementNode && n.Data == "link" {
+			for _, a := range n.Attr {
+				if a.Key == "rel" && (a.Val == "icon" || a.Val == "shortcut icon") {
+					for _, a := range n.Attr {
+						if a.Key == "href" {
+							favicon = a.Val
+							break
+						}
+					}
+				}
+			}
+		}
+		if n.Type == html.ElementNode && n.Data == "meta" {
+			var name, content string
+			for _, a := range n.Attr {
+				if a.Key == "name" && a.Val == "description" {
+					name = a.Val
+				} else if a.Key == "content" {
+					content = a.Val
+				}
+			}
+			if name == "description" {
+				description = content
+			}
+		}
+
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			crawler(c)
+		}
+	}
+
+	crawler(n)
+	return
 }
