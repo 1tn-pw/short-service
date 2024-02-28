@@ -2,6 +2,7 @@ package short
 
 import (
 	"context"
+	mungo "github.com/keloran/go-config/mongo"
 	"golang.org/x/net/html"
 	"math/rand"
 	"net/http"
@@ -27,27 +28,37 @@ type Short struct {
 
 	Config ConfigBuilder.Config
 	CTX    context.Context
+
+	mungo.RealMongoOperations
 }
 
 func NewShort(ctx context.Context, cfg ConfigBuilder.Config) *Short {
+	m := &mungo.RealMongoOperations{}
+	if _, err := m.GetMongoClient(ctx, cfg.Mongo); err != nil {
+		_ = logs.Errorf("CreateURL getClient: %v", err)
+		return nil
+	}
+	if _, err := m.GetMongoDatabase(cfg.Mongo); err != nil {
+		_ = logs.Errorf("CreateURL getDatabase: %v", err)
+		return nil
+	}
+	if _, err := m.GetMongoCollection(cfg.Mongo, "short"); err != nil {
+		_ = logs.Errorf("CreateURL getCollection: %v", err)
+		return nil
+	}
+
 	return &Short{
-		Config: cfg,
-		CTX:    ctx,
+		Config:              cfg,
+		CTX:                 ctx,
+		RealMongoOperations: *m,
 	}
 }
 
 func (s *Short) CreateURL(long string) (string, error) {
 	short := generateShort()
 
-	m := &RealMongoOperations{
-		Database:   s.Config.Mongo.Database,
-		Collection: s.Config.Mongo.Collections["short"],
-	}
-	if err := m.GetMongoClient(s.CTX, s.Config.Mongo); err != nil {
-		return "", logs.Errorf("CreateURL: %v", err)
-	}
 	defer func() {
-		if err := m.Disconnect(s.CTX); err != nil {
+		if err := s.RealMongoOperations.Client.Disconnect(s.CTX); err != nil {
 			_ = logs.Errorf("CreateURL: %v", err)
 		}
 	}()
@@ -66,7 +77,7 @@ func (s *Short) CreateURL(long string) (string, error) {
 		return "", logs.Errorf("CreateURL: %v", err)
 	}
 
-	if _, err := m.InsertOne(s.CTX, &DocShort{
+	if _, err := s.RealMongoOperations.InsertOne(s.CTX, &DocShort{
 		LongURL:     long,
 		ShortURL:    short,
 		InsertDate:  time.Now(),
@@ -81,26 +92,13 @@ func (s *Short) CreateURL(long string) (string, error) {
 }
 
 func (s *Short) alreadyExists(long string) (string, error) {
-	m := &RealMongoOperations{
-		Database:   s.Config.Mongo.Database,
-		Collection: s.Config.Mongo.Collections["short"],
-	}
-	if err := m.GetMongoClient(s.CTX, s.Config.Mongo); err != nil {
-		return "", logs.Errorf("alreadyExists: %v", err)
-	}
-	defer func() {
-		if err := m.Disconnect(s.CTX); err != nil {
-			_ = logs.Errorf("alreadyExists: %v", err)
-		}
-	}()
-
 	doc := &DocShort{}
-	res, err := m.FindOne(s.CTX, &bson.M{"long_url": long})
-	if err != nil {
-		if err.Error() == "FindOne: mongo: no documents in result" {
+	res := s.RealMongoOperations.FindOne(s.CTX, &bson.M{"long_url": long})
+	if res.Err() != nil {
+		if res.Err().Error() == "mongo: no documents in result" {
 			return "", nil
 		} else {
-			return "", logs.Errorf("alreadyExists: %v", err)
+			return "", logs.Errorf("alreadyExists: %v", res.Err())
 		}
 	}
 
@@ -112,23 +110,10 @@ func (s *Short) alreadyExists(long string) (string, error) {
 }
 
 func (s *Short) GetURL(short string) (*DocShort, error) {
-	m := &RealMongoOperations{
-		Database:   s.Config.Mongo.Database,
-		Collection: s.Config.Mongo.Collections["short"],
-	}
-	if err := m.GetMongoClient(s.CTX, s.Config.Mongo); err != nil {
-		return nil, logs.Errorf("GetURL: %v", err)
-	}
-	defer func() {
-		if err := m.Disconnect(s.CTX); err != nil {
-			_ = logs.Errorf("GetURL: %v", err)
-		}
-	}()
-
 	doc := &DocShort{}
-	res, err := m.FindOne(s.CTX, &bson.M{"short_url": short})
-	if err != nil {
-		return nil, logs.Errorf("GetURL: %v", err)
+	res := s.RealMongoOperations.FindOne(s.CTX, &bson.M{"short_url": short})
+	if res.Err() != nil {
+		return nil, logs.Errorf("GetURL: %v", res.Err())
 	}
 
 	if err := res.Decode(doc); err != nil {

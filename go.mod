@@ -5,7 +5,7 @@ go 1.22
 require (
 	github.com/1tn-pw/protobufs v0.1.2
 	github.com/bugfixes/go-bugfixes v0.10.0
-	github.com/keloran/go-config v0.4.3
+	github.com/keloran/go-config v0.4.4-0.20240228231037-84a2b793cc3b
 	github.com/keloran/go-healthcheck v1.2.2
 	github.com/stretchr/testify v1.8.4
 	go.mongodb.org/mongo-driver v1.14.0

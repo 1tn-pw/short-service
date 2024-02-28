@@ -68,6 +68,8 @@ github.com/keloran/go-config v0.4.2 h1:ufkRbvg/0ft62tjFnA8lUQCyNnVleoGd8SwmRb5EP
 github.com/keloran/go-config v0.4.2/go.mod h1:KxS15MfqGbUw01Um/GJbnOM46oeEB8pQAKDRYJMunM4=
 github.com/keloran/go-config v0.4.3 h1:0TxPCDZQvwxB8Jpg2Uyc02IawTjXqHui9PzpcAMng00=
 github.com/keloran/go-config v0.4.3/go.mod h1:fHMqQX78lrUClHqdFksTPwLsI2ET4MlH4jDarXdDoN0=
+github.com/keloran/go-config v0.4.4-0.20240228231037-84a2b793cc3b h1:q8Ok9UYDPTdjv9yj9SdYSF8+EV3o6D8XqempePXnAow=
+github.com/keloran/go-config v0.4.4-0.20240228231037-84a2b793cc3b/go.mod h1:fHMqQX78lrUClHqdFksTPwLsI2ET4MlH4jDarXdDoN0=
 github.com/keloran/go-healthcheck v1.2.2 h1:C92m/ppWkY6OldY5RrDiqCTpXIaOZtSO0vMmHADsrUc=
 github.com/keloran/go-healthcheck v1.2.2/go.mod h1:XGZyWC9IMGoyMGUvh3v3cZQp+eHFuYCHIkDjQOsuUVk=
 github.com/keloran/vault-helper v0.8.2 h1:Nmsb3XAhuaLQRv+LirOTSjdv6WcJuqNK+7xnOLAa+ME=
