@@ -13,10 +13,12 @@ import (
 )
 
 type DocShort struct {
-	LongURL    string    `bson:"long_url" json:"long_url"`
-	ShortURL   string    `bson:"short_url" json:"short_url"`
-	InsertDate time.Time `bson:"insert_date" json:"insert_date"`
-	Title      string    `bson:"title" json:"title"`
+	LongURL     string    `bson:"long_url" json:"long_url"`
+	ShortURL    string    `bson:"short_url" json:"short_url"`
+	InsertDate  time.Time `bson:"insert_date" json:"insert_date"`
+	Title       string    `bson:"title" json:"title"`
+	Favicon     string    `bson:"favicon" json:"favicon"`
+	Description string    `bson:"description" json:"description"`
 }
 
 type Short struct {
@@ -59,16 +61,18 @@ func (s *Short) CreateURL(long string) (string, error) {
 		return shortAlready, nil
 	}
 
-	title, err := fetchTitle(long)
+	dets, err := fetchDetails(long)
 	if err != nil {
 		return "", logs.Errorf("CreateURL: %v", err)
 	}
 
 	if _, err := m.InsertOne(s.CTX, &DocShort{
-		LongURL:    long,
-		ShortURL:   short,
-		InsertDate: time.Now(),
-		Title:      title,
+		LongURL:     long,
+		ShortURL:    short,
+		InsertDate:  time.Now(),
+		Title:       dets.Title,
+		Favicon:     dets.ShortURL,
+		Description: dets.Description,
 	}); err != nil {
 		return "", logs.Errorf("CreateURL: %v", err)
 	}
@@ -146,10 +150,10 @@ func generateShort() string {
 	return string(short)
 }
 
-func fetchTitle(url string) (string, error) {
+func fetchDetails(url string) (*DocShort, error) {
 	res, err := http.Get(url)
 	if err != nil {
-		return "", logs.Errorf("fetchTitle: %v", err)
+		return nil, logs.Errorf("fetchTitle: %v", err)
 	}
 	defer func() {
 		if err := res.Body.Close(); err != nil {
@@ -157,21 +161,59 @@ func fetchTitle(url string) (string, error) {
 		}
 	}()
 	if res.StatusCode != 200 {
-		return "", logs.Errorf("fetchTitle: %v", res.Status)
+		return nil, logs.Errorf("fetchTitle: %v", res.Status)
 	}
 
-	toks := html.NewTokenizer(res.Body)
-	for {
-		tt := toks.Next()
-		if tt == html.ErrorToken {
-			return "", logs.Errorf("fetchTitle: %v", toks.Err())
+	dets, err := html.Parse(res.Body)
+	if err != nil {
+		return nil, logs.Errorf("fetchTitle: %v", err)
+	}
+
+	title, favicon, description := extractDetails(dets)
+	return &DocShort{
+		Title:       title,
+		ShortURL:    favicon,
+		Description: description,
+	}, nil
+}
+
+func extractDetails(n *html.Node) (title, favicon, description string) {
+	var crawler func(*html.Node)
+	crawler = func(n *html.Node) {
+		if n.Type == html.ElementNode && n.Data == "title" && n.FirstChild != nil {
+			title = n.FirstChild.Data
 		}
-		if tt == html.StartTagToken {
-			t := toks.Token()
-			if t.Data == "title" {
-				toks.Next()
-				return toks.Token().Data, nil
+		if n.Type == html.ElementNode && n.Data == "link" {
+			for _, a := range n.Attr {
+				if a.Key == "rel" && (a.Val == "icon" || a.Val == "shortcut icon") {
+					for _, a := range n.Attr {
+						if a.Key == "href" {
+							favicon = a.Val
+							break
+						}
+					}
+				}
 			}
 		}
+		if n.Type == html.ElementNode && n.Data == "meta" {
+			var name, content string
+			for _, a := range n.Attr {
+				if a.Key == "name" && a.Val == "description" {
+					name = a.Val
+				} else if a.Key == "content" {
+					content = a.Val
+				}
+			}
+			if name == "description" {
+				description = content
+			}
+		}
+
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			crawler(c)
+		}
 	}
+
+	crawler(n)
+	return
 }

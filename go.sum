@@ -4,6 +4,8 @@ github.com/1tn-pw/protobufs v0.1.1 h1:b6SwRo0GrJlSOOXMgCWKtu85lBWgLSSeGzje0DjHSG
 github.com/1tn-pw/protobufs v0.1.1/go.mod h1:i/OFm1UMBaDvvhizteZfIPbfMrFEvIjU5WS2PpCYfCg=
 github.com/1tn-pw/protobufs v0.1.2-0.20240228194549-fcfbbe8efbdf h1:HZBz1TeVZQtJzpeiC3dLYq92pMKjWO3OMn/70FqeiRo=
 github.com/1tn-pw/protobufs v0.1.2-0.20240228194549-fcfbbe8efbdf/go.mod h1:i/OFm1UMBaDvvhizteZfIPbfMrFEvIjU5WS2PpCYfCg=
+github.com/1tn-pw/protobufs v0.1.2 h1:dMN7ZoLK86qlkkzintO+mgLUwf+Jx3XnHulVDV1ATU4=
+github.com/1tn-pw/protobufs v0.1.2/go.mod h1:i/OFm1UMBaDvvhizteZfIPbfMrFEvIjU5WS2PpCYfCg=
 github.com/bugfixes/go-bugfixes v0.10.0 h1:zZFRIOTzir5WAXC7ooZvQ0tTV3rDX5dNjtH9Sc10Z9k=
 github.com/bugfixes/go-bugfixes v0.10.0/go.mod h1:IXxsOIHAu9XJGVYvfhBAKmDj3zPPI3mBcrW9ESehpJk=
 github.com/caarlos0/env/v8 v8.0.0 h1:POhxHhSpuxrLMIdvTGARuZqR4Jjm8AYmoi/JKlcScs0=
