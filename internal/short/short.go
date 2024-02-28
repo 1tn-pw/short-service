@@ -2,7 +2,9 @@ package short
 
 import (
 	"context"
+	"golang.org/x/net/html"
 	"math/rand"
+	"net/http"
 	"time"
 
 	"github.com/bugfixes/go-bugfixes/logs"
@@ -10,10 +12,11 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type ShortDoc struct {
+type DocShort struct {
 	LongURL    string    `bson:"long_url" json:"long_url"`
 	ShortURL   string    `bson:"short_url" json:"short_url"`
 	InsertDate time.Time `bson:"insert_date" json:"insert_date"`
+	Title      string    `bson:"title" json:"title"`
 }
 
 type Short struct {
@@ -56,10 +59,16 @@ func (s *Short) CreateURL(long string) (string, error) {
 		return shortAlready, nil
 	}
 
-	if _, err := m.InsertOne(s.CTX, &ShortDoc{
+	title, err := fetchTitle(long)
+	if err != nil {
+		return "", logs.Errorf("CreateURL: %v", err)
+	}
+
+	if _, err := m.InsertOne(s.CTX, &DocShort{
 		LongURL:    long,
 		ShortURL:   short,
 		InsertDate: time.Now(),
+		Title:      title,
 	}); err != nil {
 		return "", logs.Errorf("CreateURL: %v", err)
 	}
@@ -81,7 +90,7 @@ func (s *Short) alreadyExists(long string) (string, error) {
 		}
 	}()
 
-	doc := &ShortDoc{}
+	doc := &DocShort{}
 	res, err := m.FindOne(s.CTX, &bson.M{"long_url": long})
 	if err != nil {
 		if err.Error() == "FindOne: mongo: no documents in result" {
@@ -98,13 +107,13 @@ func (s *Short) alreadyExists(long string) (string, error) {
 	return doc.ShortURL, nil
 }
 
-func (s *Short) GetURL(short string) (string, error) {
+func (s *Short) GetURL(short string) (*DocShort, error) {
 	m := &RealMongoOperations{
 		Database:   s.Config.Mongo.Database,
 		Collection: s.Config.Mongo.Collections["short"],
 	}
 	if err := m.GetMongoClient(s.CTX, s.Config.Mongo); err != nil {
-		return "", logs.Errorf("GetURL: %v", err)
+		return nil, logs.Errorf("GetURL: %v", err)
 	}
 	defer func() {
 		if err := m.Disconnect(s.CTX); err != nil {
@@ -112,17 +121,17 @@ func (s *Short) GetURL(short string) (string, error) {
 		}
 	}()
 
-	doc := &ShortDoc{}
+	doc := &DocShort{}
 	res, err := m.FindOne(s.CTX, &bson.M{"short_url": short})
 	if err != nil {
-		return "", logs.Errorf("GetURL: %v", err)
+		return nil, logs.Errorf("GetURL: %v", err)
 	}
 
 	if err := res.Decode(doc); err != nil {
-		return "", logs.Errorf("GetURL: %v", err)
+		return nil, logs.Errorf("GetURL: %v", err)
 	}
 
-	return doc.LongURL, nil
+	return doc, nil
 }
 
 func generateShort() string {
@@ -135,4 +144,34 @@ func generateShort() string {
 		short[i] = charset[r.Intn(len(charset))]
 	}
 	return string(short)
+}
+
+func fetchTitle(url string) (string, error) {
+	res, err := http.Get(url)
+	if err != nil {
+		return "", logs.Errorf("fetchTitle: %v", err)
+	}
+	defer func() {
+		if err := res.Body.Close(); err != nil {
+			_ = logs.Errorf("fetchTitle: %v", err)
+		}
+	}()
+	if res.StatusCode != 200 {
+		return "", logs.Errorf("fetchTitle: %v", res.Status)
+	}
+
+	toks := html.NewTokenizer(res.Body)
+	for {
+		tt := toks.Next()
+		if tt == html.ErrorToken {
+			return "", logs.Errorf("fetchTitle: %v", toks.Err())
+		}
+		if tt == html.StartTagToken {
+			t := toks.Token()
+			if t.Data == "title" {
+				toks.Next()
+				return toks.Token().Data, nil
+			}
+		}
+	}
 }

@@ -48,6 +48,7 @@ func (s *Server) GetURL(ctx context.Context, in *pb.GetURLRequest) (*pb.GetURLRe
 	}
 
 	return &pb.GetURLResponse{
-		Url: resp,
+		Url:   resp.LongURL,
+		Title: resp.Title,
 	}, nil
 }
