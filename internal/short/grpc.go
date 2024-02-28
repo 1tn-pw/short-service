@@ -2,7 +2,6 @@ package short
 
 import (
 	"context"
-
 	pb "github.com/1tn-pw/protobufs/generated/short_service/v1"
 	"github.com/bugfixes/go-bugfixes/utils"
 	ConfigBuilder "github.com/keloran/go-config"
