@@ -5,7 +5,7 @@ go 1.22
 require (
 	github.com/1tn-pw/protobufs v0.1.2
 	github.com/bugfixes/go-bugfixes v0.10.0
-	github.com/keloran/go-config v0.4.4
+	github.com/keloran/go-config v0.5.0
 	github.com/keloran/go-healthcheck v1.2.2
 	go.mongodb.org/mongo-driver v1.14.0
 	golang.org/x/net v0.21.0
@@ -46,6 +46,6 @@ require (
 	golang.org/x/sys v0.17.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240213162025-012b6fc9bca9 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240228224816-df926f6c8641 // indirect
 	google.golang.org/protobuf v1.32.0 // indirect
 )
