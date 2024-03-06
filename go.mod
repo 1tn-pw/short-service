@@ -9,7 +9,7 @@ require (
 	github.com/keloran/go-healthcheck v1.2.2
 	go.mongodb.org/mongo-driver v1.14.0
 	golang.org/x/net v0.22.0
-	google.golang.org/grpc v1.62.0
+	google.golang.org/grpc v1.62.1
 )
 
 require (
