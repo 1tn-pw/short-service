@@ -5,7 +5,7 @@ go 1.22
 require (
 	github.com/1tn-pw/protobufs v0.1.2
 	github.com/bugfixes/go-bugfixes v0.12.2
-	github.com/keloran/go-config v1.1.7
+	github.com/keloran/go-config v1.2.1
 	github.com/keloran/go-healthcheck v1.2.2
 	go.mongodb.org/mongo-driver v1.15.0
 	golang.org/x/net v0.25.0
@@ -33,6 +33,9 @@ require (
 	github.com/hashicorp/go-sockaddr v1.0.6 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/vault/api v1.13.0 // indirect
+	github.com/jackc/pgpassfile v1.0.0 // indirect
+	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
+	github.com/jackc/pgx/v5 v5.5.5 // indirect
 	github.com/keloran/vault-helper v0.9.0 // indirect
 	github.com/klauspost/compress v1.17.8 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
