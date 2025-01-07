@@ -8,7 +8,7 @@ require (
 	github.com/keloran/go-config v1.3.0
 	github.com/keloran/go-healthcheck v1.2.2
 	go.mongodb.org/mongo-driver v1.17.1
-	golang.org/x/net v0.33.0
+	golang.org/x/net v0.34.0
 	google.golang.org/grpc v1.69.2
 )
 
@@ -51,10 +51,10 @@ require (
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
 	go.uber.org/mock v0.4.0 // indirect
 	goauthentik.io/api/v3 v3.2024060.6 // indirect
-	golang.org/x/crypto v0.31.0 // indirect
+	golang.org/x/crypto v0.32.0 // indirect
 	golang.org/x/oauth2 v0.23.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241015192408-796eee8c2d53 // indirect
