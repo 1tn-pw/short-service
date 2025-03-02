@@ -2,7 +2,7 @@ package short
 
 import (
 	"context"
-	mungo "github.com/keloran/go-config/mongo"
+	mungo "github.com/keloran/go-config/database/mongo"
 	"golang.org/x/net/html"
 	"math/rand"
 	"net/http"
