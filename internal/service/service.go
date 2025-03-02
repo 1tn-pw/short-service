@@ -33,7 +33,7 @@ func (s *Service) Start() error {
 }
 
 func startHTTP(cfg ConfigBuilder.Config, errChan chan error) {
-	logs.Local().Infof("Starting HTTP on %d", cfg.Local.HTTPPort)
+	logs.Infof("Starting HTTP on %d", cfg.Local.HTTPPort)
 
 	http.HandleFunc("/health", healthcheck.HTTP)
 	errChan <- http.ListenAndServe(fmt.Sprintf(":%d", cfg.Local.HTTPPort), nil)
@@ -52,6 +52,6 @@ func startGRPC(cfg ConfigBuilder.Config, errChan chan error) {
 		Config: cfg,
 	})
 
-	logs.Local().Infof("Starting gRPC on %d", cfg.Local.GRPCPort)
+	logs.Infof("Starting gRPC on %d", cfg.Local.GRPCPort)
 	errChan <- gs.Serve(list)
 }
