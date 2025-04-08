@@ -10,7 +10,7 @@ require (
 	github.com/keloran/go-config v1.5.6
 	github.com/keloran/go-healthcheck v1.2.2
 	go.mongodb.org/mongo-driver v1.17.3
-	golang.org/x/net v0.38.0
+	golang.org/x/net v0.39.0
 	google.golang.org/grpc v1.71.1
 )
 
@@ -52,10 +52,10 @@ require (
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
 	go.uber.org/mock v0.5.0 // indirect
-	golang.org/x/crypto v0.36.0 // indirect
-	golang.org/x/sync v0.12.0 // indirect
-	golang.org/x/sys v0.31.0 // indirect
-	golang.org/x/text v0.23.0 // indirect
+	golang.org/x/crypto v0.37.0 // indirect
+	golang.org/x/sync v0.13.0 // indirect
+	golang.org/x/sys v0.32.0 // indirect
+	golang.org/x/text v0.24.0 // indirect
 	golang.org/x/time v0.10.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250227231956-55c901821b1e // indirect
 	google.golang.org/protobuf v1.36.5 // indirect
