@@ -6,7 +6,7 @@ toolchain go1.24.1
 
 require (
 	github.com/1tn-pw/protobufs v0.1.2
-	github.com/bugfixes/go-bugfixes v0.13.0
+	github.com/bugfixes/go-bugfixes v0.14.0
 	github.com/keloran/go-config v1.5.6
 	github.com/keloran/go-healthcheck v1.2.2
 	go.mongodb.org/mongo-driver v1.17.3
