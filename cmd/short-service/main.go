@@ -14,15 +14,7 @@ var (
 
 func main() {
 	logs.Local().Infof("Starting %s %s %s", ServiceName, BuildVersion, BuildHash)
-
-	//vh := vaulthelper.NewVault("", "")
 	c := ConfigBuilder.NewConfigNoVault()
-	//c.VaultPaths = ConfigVault.Paths{
-	//	Mongo: ConfigVault.Path{
-	//		Credentials: "database/creds/mongo-1tn-pw",
-	//		Details:     "kv/data/1tn-pw/short-service",
-	//	},
-	//}
 
 	if err := c.Build(ConfigBuilder.Local, ConfigBuilder.Mongo); err != nil {
 		_ = logs.Errorf("unable to build config: %v", err)

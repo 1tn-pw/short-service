@@ -33,29 +33,33 @@ type Short struct {
 }
 
 func NewShort(ctx context.Context, cfg ConfigBuilder.Config) *Short {
+	return &Short{
+		Config: cfg,
+		CTX:    ctx,
+	}
+}
+
+func (s *Short) getMongo() error {
 	m := &mungo.RealMongoOperations{}
-	if _, err := m.GetMongoClient(ctx, cfg.Mongo); err != nil {
-		_ = logs.Errorf("CreateURL getClient: %v", err)
-		return nil
+	if _, err := m.GetMongoClient(s.Config.Mongo); err != nil {
+		return logs.Errorf("CreateURL getClient: %v", err)
 	}
-	if _, err := m.GetMongoDatabase(cfg.Mongo); err != nil {
-		_ = logs.Errorf("CreateURL getDatabase: %v", err)
-		return nil
+	if _, err := m.GetMongoDatabase(s.Config.Mongo); err != nil {
+		return logs.Errorf("CreateURL getDatabase: %v", err)
 	}
-	if _, err := m.GetMongoCollection(cfg.Mongo, "short"); err != nil {
-		_ = logs.Errorf("CreateURL getCollection: %v", err)
-		return nil
+	if _, err := m.GetMongoCollection(s.Config.Mongo, "short"); err != nil {
+		return logs.Errorf("CreateURL getCollection: %v", err)
 	}
 
-	return &Short{
-		Config:              cfg,
-		CTX:                 ctx,
-		RealMongoOperations: *m,
-	}
+	s.RealMongoOperations = *m
+	return nil
 }
 
 func (s *Short) CreateURL(long string) (string, error) {
 	short := generateShort()
+	if err := s.getMongo(); err != nil {
+		return "", err
+	}
 
 	defer func() {
 		if err := s.RealMongoOperations.Client.Disconnect(s.CTX); err != nil {
@@ -111,6 +115,10 @@ func (s *Short) alreadyExists(long string) (string, error) {
 
 func (s *Short) GetURL(short string) (*DocShort, error) {
 	doc := &DocShort{}
+	if err := s.getMongo(); err != nil {
+		return nil, err
+	}
+
 	res := s.RealMongoOperations.FindOne(s.CTX, &bson.M{"short_url": short})
 	if res.Err() != nil {
 		return nil, logs.Errorf("GetURL: %v", res.Err())
