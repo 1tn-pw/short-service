@@ -6,6 +6,7 @@ import (
 	"golang.org/x/net/html"
 	"math/rand"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/bugfixes/go-bugfixes/logs"
@@ -32,6 +33,14 @@ type Short struct {
 	mungo.RealMongoOperations
 }
 
+// MongoConnection holds the persistent MongoDB connection
+type MongoConnection struct {
+	mungo.RealMongoOperations
+	Initialized bool
+}
+
+var mongoConn = &MongoConnection{}
+
 func NewShort(ctx context.Context, cfg ConfigBuilder.Config) *Short {
 	return &Short{
 		Config: cfg,
@@ -39,19 +48,49 @@ func NewShort(ctx context.Context, cfg ConfigBuilder.Config) *Short {
 	}
 }
 
-func (s *Short) getMongo() error {
-	m := &mungo.RealMongoOperations{}
-	if _, err := m.GetMongoClient(s.Config.Mongo); err != nil {
-		return logs.Errorf("CreateURL getClient: %v", err)
-	}
-	if _, err := m.GetMongoDatabase(s.Config.Mongo); err != nil {
-		return logs.Errorf("CreateURL getDatabase: %v", err)
-	}
-	if _, err := m.GetMongoCollection(s.Config.Mongo, "short"); err != nil {
-		return logs.Errorf("CreateURL getCollection: %v", err)
+// InitMongo initializes the MongoDB connection with proper pool settings
+// This should be called once at service startup
+func InitMongo(cfg ConfigBuilder.Config) error {
+	// Modify the RawURL to include connection pool options
+	originalURL := cfg.Mongo.RawURL
+	if originalURL != "" && !strings.Contains(originalURL, "maxPoolSize") {
+		if strings.Contains(originalURL, "?") {
+			cfg.Mongo.RawURL += "&maxPoolSize=50&minPoolSize=10&maxIdleTimeMS=300000"
+		} else {
+			cfg.Mongo.RawURL += "?maxPoolSize=50&minPoolSize=10&maxIdleTimeMS=300000"
+		}
 	}
 
-	s.RealMongoOperations = *m
+	m := &mungo.RealMongoOperations{}
+	if _, err := m.GetMongoClient(cfg.Mongo); err != nil {
+		return logs.Errorf("InitMongo getClient: %v", err)
+	}
+	if _, err := m.GetMongoDatabase(cfg.Mongo); err != nil {
+		return logs.Errorf("InitMongo getDatabase: %v", err)
+	}
+	if _, err := m.GetMongoCollection(cfg.Mongo, "short"); err != nil {
+		return logs.Errorf("InitMongo getCollection: %v", err)
+	}
+
+	mongoConn.RealMongoOperations = *m
+	mongoConn.Initialized = true
+	return nil
+}
+
+// CloseMongo closes the MongoDB connection
+// This should be called at service shutdown
+func CloseMongo(ctx context.Context) error {
+	if mongoConn.Initialized && mongoConn.Client != nil {
+		return mongoConn.Client.Disconnect(ctx)
+	}
+	return nil
+}
+
+func (s *Short) getMongo() error {
+	if !mongoConn.Initialized {
+		return logs.Errorf("MongoDB connection not initialized")
+	}
+	s.RealMongoOperations = mongoConn.RealMongoOperations
 	return nil
 }
 
@@ -61,11 +100,7 @@ func (s *Short) CreateURL(long string) (string, error) {
 		return "", err
 	}
 
-	defer func() {
-		if err := s.RealMongoOperations.Client.Disconnect(s.CTX); err != nil {
-			_ = logs.Errorf("CreateURL: %v", err)
-		}
-	}()
+	// No need to disconnect - using persistent connection pool
 
 	shortAlready, err := s.alreadyExists(long)
 	if err != nil {
