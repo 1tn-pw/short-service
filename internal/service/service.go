@@ -1,9 +1,11 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"net/http"
+	"time"
 
 	pb "github.com/1tn-pw/protobufs/generated/short_service/v1"
 	"github.com/1tn-pw/short-service/internal/short"
@@ -25,6 +27,20 @@ func NewService(cfg ConfigBuilder.Config) *Service {
 }
 
 func (s *Service) Start() error {
+	// Initialize MongoDB connection pool
+	if err := short.InitMongo(s.Config); err != nil {
+		return logs.Errorf("Failed to initialize MongoDB: %v", err)
+	}
+
+	// Ensure MongoDB connection is closed on shutdown
+	defer func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := short.CloseMongo(ctx); err != nil {
+			logs.Errorf("Failed to close MongoDB connection: %v", err)
+		}
+	}()
+
 	errChan := make(chan error)
 	go startHTTP(s.Config, errChan)
 	go startGRPC(s.Config, errChan)
