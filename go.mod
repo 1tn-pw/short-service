@@ -9,7 +9,7 @@ require (
 	github.com/bugfixes/go-bugfixes v0.14.0
 	github.com/keloran/go-config v1.7.2
 	github.com/keloran/go-healthcheck v1.2.2
-	go.mongodb.org/mongo-driver v1.17.6
+	go.mongodb.org/mongo-driver v1.17.7
 	golang.org/x/net v0.49.0
 	google.golang.org/grpc v1.78.0
 )
