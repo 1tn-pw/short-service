@@ -6,7 +6,7 @@ toolchain go1.24.3
 
 require (
 	github.com/1tn-pw/protobufs v0.1.2
-	github.com/bugfixes/go-bugfixes v0.14.0
+	github.com/bugfixes/go-bugfixes v0.14.1
 	github.com/keloran/go-config v1.7.2
 	github.com/keloran/go-healthcheck v1.2.2
 	go.mongodb.org/mongo-driver v1.17.7
@@ -19,7 +19,7 @@ require (
 	github.com/caarlos0/env/v8 v8.0.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.3 // indirect
-	github.com/go-logfmt/logfmt v0.6.0 // indirect
+	github.com/go-logfmt/logfmt v0.6.1 // indirect
 	github.com/go-ping/ping v1.2.0 // indirect
 	github.com/go-resty/resty/v2 v2.16.5 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.2 // indirect
