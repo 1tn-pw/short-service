@@ -1,8 +1,6 @@
 module github.com/1tn-pw/short-service
 
-go 1.24.0
-
-toolchain go1.24.3
+go 1.25.0
 
 require (
 	github.com/1tn-pw/protobufs v0.1.2
@@ -10,7 +8,7 @@ require (
 	github.com/keloran/go-config v1.8.1
 	github.com/keloran/go-healthcheck v1.2.2
 	go.mongodb.org/mongo-driver v1.17.9
-	golang.org/x/net v0.50.0
+	golang.org/x/net v0.51.0
 	google.golang.org/grpc v1.79.1
 )
 
