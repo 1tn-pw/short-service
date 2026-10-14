@@ -2,6 +2,7 @@ package short
 
 import (
 	"context"
+	"fmt"
 	mungo "github.com/keloran/go-config/database/mongo"
 	"golang.org/x/net/html"
 	"math/rand"
@@ -94,7 +95,9 @@ func (s *Short) getMongo() error {
 	return nil
 }
 
-func (s *Short) CreateURL(long string) (string, error) {
+// CreateURL shortens long. A title from the caller is used as given, with its description, and the
+// page isn't read; without one the page's own details are fetched.
+func (s *Short) CreateURL(long, title, description string) (string, error) {
 	short := generateShort()
 	if err := s.getMongo(); err != nil {
 		return "", err
@@ -111,10 +114,7 @@ func (s *Short) CreateURL(long string) (string, error) {
 		return shortAlready, nil
 	}
 
-	dets, err := fetchDetails(long)
-	if err != nil {
-		return "", logs.Errorf("CreateURL: %v", err)
-	}
+	dets := details(long, title, description)
 
 	if _, err := s.RealMongoOperations.InsertOne(s.CTX, &DocShort{
 		LongURL:     long,
@@ -178,23 +178,44 @@ func generateShort() string {
 	return string(short)
 }
 
-func fetchDetails(url string) (*DocShort, error) {
-	res, err := http.Get(url)
-	if err != nil {
-		return nil, logs.Errorf("fetchTitle: %v", err)
+// details are the caller's when it gave a title, so a page it already knows (or one we couldn't
+// read) isn't fetched; otherwise they're the page's own.
+func details(long, title, description string) *DocShort {
+	if title != "" {
+		return &DocShort{Title: title, Description: description}
 	}
-	defer func() {
-		if err := res.Body.Close(); err != nil {
-			_ = logs.Errorf("fetchTitle: %v", err)
-		}
-	}()
+	return detailsOrNone(long)
+}
+
+// detailsOrNone is a page's details, or none: a page that can't be read (one behind a sign-in
+// answers 403) still gets its short link, just without a title, icon or description.
+func detailsOrNone(long string) *DocShort {
+	dets, err := fetchDetails(long)
+	if err != nil {
+		logs.Infof("no details for %s: %v", long, err)
+		return &DocShort{}
+	}
+	return dets
+}
+
+// detailsClient reads pages for their details; a page that never answers mustn't hold up a link.
+var detailsClient = &http.Client{Timeout: 10 * time.Second}
+
+// fetchDetails reads a page's title, icon and description. Failing is expected (private pages), so
+// it's an error for the caller to shrug off, not one to report.
+func fetchDetails(url string) (*DocShort, error) {
+	res, err := detailsClient.Get(url)
+	if err != nil {
+		return nil, fmt.Errorf("fetchTitle: %w", err)
+	}
+	defer func() { _ = res.Body.Close() }()
 	if res.StatusCode != 200 {
-		return nil, logs.Errorf("fetchTitle: %v", res.Status)
+		return nil, fmt.Errorf("fetchTitle: %v", res.Status)
 	}
 
 	dets, err := html.Parse(res.Body)
 	if err != nil {
-		return nil, logs.Errorf("fetchTitle: %v", err)
+		return nil, fmt.Errorf("fetchTitle: %w", err)
 	}
 
 	title, favicon, description := extractDetails(dets)

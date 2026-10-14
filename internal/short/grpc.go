@@ -19,7 +19,7 @@ func (s *Server) CreateURL(ctx context.Context, in *pb.CreateURLRequest) (*pb.Cr
 		}, nil
 	}
 
-	resp, err := NewShort(ctx, s.Config).CreateURL(in.Url)
+	resp, err := NewShort(ctx, s.Config).CreateURL(in.GetUrl(), in.GetTitle(), in.GetDescription())
 	if err != nil {
 		return &pb.CreateURLResponse{
 			Error: utils.Pointer(err.Error()),
