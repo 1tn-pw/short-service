@@ -6,7 +6,7 @@ require (
 	github.com/1tn-pw/protobufs v0.1.3
 	github.com/bugfixes/go-bugfixes v0.19.5
 	github.com/keloran/go-config v1.9.0
-	github.com/keloran/go-healthcheck v1.2.2
+	github.com/keloran/go-healthcheck v1.3.0
 	go.mongodb.org/mongo-driver v1.17.10
 	golang.org/x/net v0.61.0
 	google.golang.org/grpc v1.84.0
@@ -18,7 +18,6 @@ require (
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.4 // indirect
 	github.com/go-logfmt/logfmt v0.6.1 // indirect
-	github.com/go-ping/ping v1.2.0 // indirect
 	github.com/go-resty/resty/v2 v2.16.5 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
@@ -43,6 +42,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/prometheus-community/pro-bing v0.9.1 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	github.com/segmentio/ksuid v1.0.4 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
