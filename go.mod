@@ -4,7 +4,7 @@ go 1.26.1
 
 require (
 	github.com/1tn-pw/protobufs v0.1.3
-	github.com/bugfixes/go-bugfixes v0.19.5
+	github.com/bugfixes/go-bugfixes v0.19.6
 	github.com/keloran/go-config v1.9.0
 	github.com/keloran/go-healthcheck v1.3.0
 	go.mongodb.org/mongo-driver v1.17.10
